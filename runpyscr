@@ -2,6 +2,7 @@
 #
 # run_script
 #   : Utility for python script to run with modules installed locally.
+#     by Nanigashi Uji (53845049+nanigashi-uji@users.noreply.github.com)
 #
 this="${BASH_SOURCE:-${0}}"
 runas="$(basename "${this}")"
@@ -930,6 +931,3 @@ END {
     }
 }
 ########## __readme_renumbering_awk_end__ ##########
-
-
-
