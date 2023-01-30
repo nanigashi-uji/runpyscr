@@ -7,6 +7,7 @@ Utility shell-script for small python script project. Setup the python script te
 - Bash
 - Python
 - Optional: GNU realpath (in GNU coreutils)
+- grep
 - sed
 - awk
 
@@ -178,7 +179,11 @@ Skeleton for small portable tools by python script
 
 ## Application
 
+### Changing the python template
+
 `runpyscr` is making python templates is embedded in itself at the lines from  `########## __py_template_start__ ##########` to ``########## __py_template_end__ ##########` with replacing the keyword, `## __py_shebang_pattern__ ##`, by the relevant python location using `sed`.  (`python` location is looked for by the following order; 1. command line option: `-P`, 2. environmental variable: `PYTHON`, 3, python in `PATH`).  Therefore, you can change the python script template by editing this part of `runpyscr`. 
+
+### Usage for python script distribution
 
 Yet another usage is to take a python script created in one environment and use it in another environment, or to distribute the custom python script file for others to use. As mentioned above, this script changes its behavior depending on whether the file entity is invoked directly or invoked by the symbolic link, but the entity file name itself (`runpyscr`) is not used to determine the mode of operation, so it can be changed as you like.
 
@@ -186,11 +191,42 @@ The following is the example when the python script `tool.py`, which is often us
 
 ```
 UserA@HostA % cp -ai 'runpyscr' '/somewhere/tool-dist'
-UserA@HostA % emacs /somewhere/tool-dist # Edit template part with the contents of tool.py
+UserA@HostA % emacs /somewhere/tool-dist # Edit python template part with the contents of tool.py
 UserA@HostA % scp /somewhere/tool-dist UserB@HostB:/tmp/tool-dist
 
 UserB@HostB % /tmp/tool-dist --manage -p /destination/util -g -r -t 'Tool by UserA@HostA' -3 -m pytz -m tzlocal -m other-python-module init tool
 UserB@HostB % /destination/util/bin/tool # Executable
+```
+
+### Mutilple python script template
+
+The python script can be named, and multiple python templete can be contained. 
+
+When the script name given as an argument of `init` sub-command or `add` sub-command is `{scriptname}`, and this script contains the line started with `########## __{scriptname}_template_start__ ##########` and the line started with `########## __{scriptname}_template_end__ ##########`, the interval between these two lines are used for the python script template. This functionality is useful to distribute multiple python scripts at once in one script file.
+
+```
+UserA@HostA % cp -ai 'runpyscr' '/somewhere/tool-dist'
+UserA@HostA % emacs /somewhere/tool-dist # Add the following contents to the end of script.
+UserA@HostA % cat /somewhere/tool-dist
+....
+########## __scriptA_template_start__ ##########
+## __py_shebang_pattern__ ##
+# -*- coding: utf-8 -*-
+
+... (Contents of scriptA)
+
+########## __scriptA_template_end__ ##########
+########## __scriptB_template_start__ ##########
+## __py_shebang_pattern__ ##
+# -*- coding: utf-8 -*-
+
+... (Contents of scriptB)
+
+########## __scriptB_template_end__ ##########UserA@HostA % scp /somewhere/tool-dist UserB@HostB:/tmp/tool-dist
+
+UserB@HostB % /tmp/tool-dist --manage -p /destination/util -g -r -t 'Tool by UserA@HostA' -3 -m pytz -m tzlocal init scriptA scriptB
+UserB@HostB % /destination/util/bin/scriptA # Executable
+UserB@HostB % /destination/util/bin/scriptB # Executable
 ```
 
 ## Command-line help
@@ -235,4 +271,3 @@ Command line help can be shown with `-h` option in `manage-mode`.
   
 ## Author
     Nanigashi Uji (53845049+nanigashi-uji@users.noreply.github.com)
-
